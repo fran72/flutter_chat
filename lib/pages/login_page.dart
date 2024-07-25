@@ -42,8 +42,8 @@ class _Form extends StatefulWidget {
 }
 
 class __FormState extends State<_Form> {
-  final emailCtrl = TextEditingController();
-  final passCtrl = TextEditingController();
+  final emailCtrl = TextEditingController(text: 'fran@gmail.com');
+  final passCtrl = TextEditingController(text: 'fran');
 
   @override
   Widget build(BuildContext context) {

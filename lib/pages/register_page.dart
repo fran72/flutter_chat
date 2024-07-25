@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/widgets/custom_input.dart';
-import 'package:flutter_chat/widgets/elevated_button.dart';
 import 'package:flutter_chat/widgets/labels.dart';
 import 'package:flutter_chat/widgets/logo.dart';
+import 'package:flutter_chat/widgets/register_elevated_button.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -71,8 +71,11 @@ class __FormState extends State<_Form> {
             textController: passCtrl,
             keyboardtype: TextInputType.visiblePassword,
           ),
-          CustomElevatedButton(
-              emailCtrl: emailCtrl, passCtrl: passCtrl, text: 'Ingrese'),
+          RegisterCustomElevatedButton(
+              nameCtrl: nameCtrl,
+              emailCtrl: emailCtrl,
+              passCtrl: passCtrl,
+              text: 'Ingrese'),
         ],
       ),
     );
