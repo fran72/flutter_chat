@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/models/mensajes_response.dart';
 import 'package:flutter_chat/services/auth_service.dart';
 import 'package:flutter_chat/services/chat_service.dart';
 import 'package:flutter_chat/services/socket_service.dart';
@@ -30,6 +31,39 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     chatService = Provider.of<ChatService>(context, listen: false);
     socketService = Provider.of<SocketService>(context, listen: false);
     authService = Provider.of<AuthService>(context, listen: false);
+
+    socketService.socket.on('mensaje-personal', _escucharMensaje);
+    _cargarHistorial(chatService.usuarioPara.id);
+  }
+
+  void _cargarHistorial(String usuarioId) async {
+    List<Mensaje> chat = await chatService.getChats(usuarioId);
+    final history = chat.map(
+      (e) => ChatMessage(
+        text: e.mensaje,
+        uid: e.de,
+        animationController:
+            AnimationController(vsync: this, duration: Duration.zero)
+              ..forward(),
+      ),
+    );
+    setState(() {
+      _messages.insertAll(0, history);
+    });
+  }
+
+  void _escucharMensaje(dynamic payload) {
+    ChatMessage message = ChatMessage(
+        text: payload['mensaje'],
+        uid: payload['uid'],
+        animationController:
+            AnimationController(vsync: this, duration: Duration.zero));
+
+    setState(() {
+      _messages.insert(0, message);
+    });
+
+    message.animationController.forward();
   }
 
   @override
@@ -136,7 +170,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
 
     final newMessage = ChatMessage(
       text: text,
-      uid: '123',
+      uid: authService.usuario.id,
       animationController: AnimationController(
           vsync: this, duration: const Duration(microseconds: 400)),
     );
@@ -145,18 +179,11 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     _focusNode.requestFocus();
     _textController.clear();
 
-    debugPrint('vas a emitir.....');
-    debugPrint(text);
-    debugPrint(authService.usuario.id);
-    debugPrint(chatService.usuarioPara.id);
-
-    // socketService.socket.emit('mensaje-personal', {
-    //   'de': authService.usuario.id,
-    //   'para': chatService.usuarioPara.id,
-    //   'mensaje': text,
-    // });
-
-    socketService.socket.emit('mensaje-personal', 'test');
+    socketService.socket.emit('mensaje-personal', {
+      'de': authService.usuario.id,
+      'para': chatService.usuarioPara.id,
+      'mensaje': text,
+    });
 
     setState(() {
       _estaEscribiendo = false;
@@ -165,10 +192,11 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    socketService.socket.off('mensaje-personal', _escucharMensaje);
+
     for (ChatMessage message in _messages) {
       message.animationController.dispose();
     }
-
     super.dispose();
   }
 }

@@ -56,7 +56,6 @@ class _UsuariosPageState extends State<UsuariosPage> {
             Container(
               padding: const EdgeInsets.only(right: 20),
               child: (socketService.serverStatus == ServerStatus.onLine)
-                  // child: (usuario.online)  TO-DO...este si cambia de color
                   ? const Icon(Icons.face, color: Colors.blueAccent)
                   : const Icon(Icons.face, color: Colors.red),
             ),
